@@ -14,14 +14,24 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-http = urllib3.PoolManager()
 
-query = sys.argv[1]
+available_sites = ["w3schools", "stackoverflow"]
+
+try:
+	query = sys.argv[1]
+except:
+	print("Give search query as argument")
+	sys.exit()
+
+http = urllib3.PoolManager()
 print()
 
 for url in search(query, tld="co.in", num=10, stop=10, pause=2): 
 	try:
-		if(url.find("w3schools")!=-1):
+
+		site = [x for x in available_sites if url.find(x)!=-1][0]
+
+		if(site == "w3schools"):
 			response = http.request('GET', url)
 			soup = BeautifulSoup(response.data, features="lxml")
 			result = soup.find("div", {"class": "w3-code"})
@@ -31,8 +41,7 @@ for url in search(query, tld="co.in", num=10, stop=10, pause=2):
 			print(result)
 			if(not result.endswith("\n")):
 				print()
-
-		elif(url.find("stackoverflow")!=-1):
+		elif(site == "stackoverflow"):
 			response = http.request('GET', url)
 			soup = BeautifulSoup(response.data, features="lxml")
 			result = soup.find("div", {"class": "accepted-answer"})
