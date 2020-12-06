@@ -15,7 +15,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks"]
+available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks", "pypi"]
 
 try:
 	query = sys.argv[1]
@@ -54,6 +54,9 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=1):
 			elif(site == "geeksforgeeks"):
 				result = soup.find("td", {"class": "code"})
 				result = result.get_text().strip()
+			elif(site == "pypi"):
+				result = soup.find("span", id="pip-command")
+				result = result.text
 		except:
 			continue
 
