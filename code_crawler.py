@@ -15,7 +15,6 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-
 available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks"]
 
 try:
@@ -29,15 +28,19 @@ rows, columns = os.popen('stty size', 'r').read().split()
 http = urllib3.PoolManager()
 print()
 
-for url in search(query, tld="co.in", num=10, stop=10, pause=2): 
-	try:
+total_results = []
+for url in search(query, tld="com", lang='en', num=10, stop=10, pause=1): 
+	site = [x for x in available_sites if url.find(x)!=-1]
+	if(len(site)!=0):
+		site = site[0]
+	else:
+		continue
 
-		site = [x for x in available_sites if url.find(x)!=-1][0]
+	if(site in available_sites):
+		response = http.request('GET', url)
+		soup = BeautifulSoup(response.data, features="lxml")
 
-		if(site in available_sites):
-			response = http.request('GET', url)
-			soup = BeautifulSoup(response.data, features="lxml")
-
+		try:
 			if(site == "w3schools"):
 				result = soup.find("div", {"class": "w3-code"})
 				result = result.get_text(separator="\n").strip()
@@ -51,20 +54,24 @@ for url in search(query, tld="co.in", num=10, stop=10, pause=2):
 			elif(site == "geeksforgeeks"):
 				result = soup.find("td", {"class": "code"})
 				result = result.get_text().strip()
+		except:
+			continue
 
-			print(bcolors.OKCYAN + site + ": " + bcolors.FAIL + url + bcolors.ENDC) 
-			
-			for i in range(int(columns)):
-				print(u'\u2500', end="")
+		if result not in total_results:
+			total_results.append(result)
+		else:
+			continue
 
+		print(bcolors.OKCYAN + site + ": " + bcolors.FAIL + url + bcolors.ENDC) 
+		
+		for i in range(int(columns)):
+			print(u'\u2500', end="")
+
+		print()
+
+		lines = result.splitlines()
+		for line in lines:
+			print("   " + line)
+
+		if(not line.endswith("\n")):
 			print()
-
-			lines = result.splitlines()
-			for line in lines:
-				print("   " + line)
-
-			if(not line.endswith("\n")):
-				print()
-
-	except:
-		pass
