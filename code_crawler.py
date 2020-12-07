@@ -3,19 +3,44 @@ from googlesearch import search
 import urllib3
 import sys
 import os
+import random
+import re
 
 class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+	HEADER = '\033[95m'
+	BLUE = '\033[94m'
+	CYAN = '\033[96m'
+	MAGENTA = '\033[33m'
+	RED = '\033[31m'
+	ENDC = '\033[0m'
+	BOLD = '\033[1m'
+	UNDERLINE = '\033[4m'
 
 available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks", "pypi"]
+
+programming_keywords_cyan = \
+[
+	"auto", "long", "enum", "register", "typedef", "extern", "union", "char", 
+	"float", "short", "unsigned", "const", "signed", "void", "goto", "sizeof", 
+	"bool",	"do", "int", "struct", "_Packed", "double",	"boolean", "byte", 
+	"catch", "class", "extends", "instanceof", "interface", "native", 
+	"private", "super", "this", "throws", "def", "len",	"lambda", "exit"
+]
+
+programming_keywords_magenta = \
+[
+	"break", "if", "else", "pass", "try", "except", "for", "import", "and", "not", "or",
+	"del", "in", "is", "elif", "yield", "with", "from", "print", "raise", "global", 
+	"continue", "finally", "while", "assert", "return", "+", "-", "/", "^", "*", "=",
+	"exec", "switch", "case", "volatile", "default", "static", "abstract", "final", 
+	"implements", "new", "package", "protected", "public", "strictfp", "synchronized", 
+	"throw", "transient", 
+]
+
+programming_keywords_blue = \
+[
+	"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+]
 
 try:
 	query = sys.argv[1]
@@ -29,7 +54,7 @@ http = urllib3.PoolManager()
 print()
 
 total_results = []
-for url in search(query, tld="com", lang='en', num=10, stop=10, pause=1): 
+for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uniform(0, 1)): 
 	site = [x for x in available_sites if url.find(x)!=-1]
 	if(len(site)!=0):
 		site = site[0]
@@ -65,7 +90,24 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=1):
 		else:
 			continue
 
-		print(bcolors.OKCYAN + site + ": " + bcolors.FAIL + url + bcolors.ENDC) 
+		result = "".join([bcolors.BLUE + x + bcolors.ENDC
+			if x>="0" and x<="9" else x for x in result])
+
+		result = re.findall('.*?[\n\t (]', result)
+
+		result = [bcolors.CYAN + x + bcolors.ENDC
+			if any(substring in x and len(substring)+2 >= len(x)
+				for substring in programming_keywords_cyan)
+			else x for x in result]
+
+		result = [bcolors.MAGENTA + x + bcolors.ENDC
+			if any(substring in x and len(substring)+2 >= len(x)
+				for substring in programming_keywords_magenta)
+			else x for x in result]
+
+		result = "".join(result)
+
+		print(bcolors.BLUE + site + ": " + bcolors.RED + url + bcolors.ENDC) 
 		
 		for i in range(int(columns)):
 			print(u'\u2500', end="")
