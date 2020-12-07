@@ -16,7 +16,28 @@ class bcolors:
 	BOLD = '\033[1m'
 	UNDERLINE = '\033[4m'
 
-available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks", "pypi"]
+def highlight_code(result):
+	result = "".join([bcolors.BLUE + x + bcolors.ENDC
+		if x>="0" and x<="9" else x for x in result])
+
+	result = re.findall('.*?[\n\t (]', result)
+
+	result = [bcolors.YELLOW + x + bcolors.ENDC
+		if any(substring in x and len(substring)+1 >= len(x)
+			for substring in programming_keywords_yellow)
+		else x for x in result]
+
+	result = [bcolors.CYAN + x + bcolors.ENDC
+		if any(substring in x and len(substring)+1 >= len(x)
+			for substring in programming_keywords_cyan)
+		else x for x in result]
+
+	result = "".join(result)
+
+	return result
+
+available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks", "pypi",
+	"askubuntu"]
 
 programming_keywords_yellow = \
 [
@@ -70,19 +91,27 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 			if(site == "w3schools"):
 				result = soup.find("div", {"class": "w3-code"})
 				result = result.get_text(separator="\n").strip()
+				result = highlight_code(result)
 			elif(site == "stackoverflow"):
 				result = soup.find("div", {"class": "accepted-answer"})
 				result = result.find("div", {"class": "s-prose"})
 				result = result.find("pre").find(text=True)
+				result = highlight_code(result)
 			elif(site == "tutorialspoint"):
 				result = soup.find("div", {"class": "tutorial-content"})
 				result = result.find("pre").find(text=True)	
+				result = highlight_code(result)
 			elif(site == "geeksforgeeks"):
 				result = soup.find("td", {"class": "code"})
 				result = result.get_text().strip()
+				result = highlight_code(result)
 			elif(site == "pypi"):
 				result = soup.find("span", id="pip-command")
 				result = result.text
+			elif(site == "askubuntu"):
+				result = soup.find("div", {"class": "accepted-answer"})
+				result = result.find("div", {"class": "s-prose"})
+				result = result.find("pre").find(text=True)
 		except:
 			continue
 
@@ -91,33 +120,13 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 		else:
 			continue
 
-		result = "".join([bcolors.BLUE + x + bcolors.ENDC
-			if x>="0" and x<="9" else x for x in result])
-
-		result = re.findall('.*?[\n\t (]', result)
-
-		result = [bcolors.YELLOW + x + bcolors.ENDC
-			if any(substring in x and len(substring)+1 >= len(x)
-				for substring in programming_keywords_yellow)
-			else x for x in result]
-
-		result = [bcolors.CYAN + x + bcolors.ENDC
-			if any(substring in x and len(substring)+1 >= len(x)
-				for substring in programming_keywords_cyan)
-			else x for x in result]
-
-		result = "".join(result)
-
 		print(bcolors.BLUE + site + ": " + bcolors.RED + url + bcolors.ENDC) 
-		
 		for i in range(int(columns)):
 			print(u'\u2500', end="")
-
 		print()
 
+		result = result.strip()
 		lines = result.splitlines()
 		for line in lines:
 			print("   " + line)
-
-		if(not line.endswith("\n")):
-			print()
+		print()
