@@ -10,7 +10,7 @@ class bcolors:
 	HEADER = '\033[95m'
 	BLUE = '\033[94m'
 	CYAN = '\033[96m'
-	MAGENTA = '\033[33m'
+	YELLOW = '\033[33m'
 	RED = '\033[31m'
 	ENDC = '\033[0m'
 	BOLD = '\033[1m'
@@ -18,7 +18,7 @@ class bcolors:
 
 available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks", "pypi"]
 
-programming_keywords_cyan = \
+programming_keywords_yellow = \
 [
 	"auto", "long", "enum", "register", "typedef", "extern", "union", "char", 
 	"float", "short", "unsigned", "const", "signed", "void", "goto", "sizeof", 
@@ -27,14 +27,15 @@ programming_keywords_cyan = \
 	"private", "super", "this", "throws", "def", "len",	"lambda", "exit"
 ]
 
-programming_keywords_magenta = \
+programming_keywords_cyan = \
 [
 	"break", "if", "else", "pass", "try", "except", "for", "import", "and", "not", "or",
 	"del", "in", "is", "elif", "yield", "with", "from", "print", "raise", "global", 
 	"continue", "finally", "while", "assert", "return", "+", "-", "/", "^", "*", "=",
-	"exec", "switch", "case", "volatile", "default", "static", "abstract", "final", 
-	"implements", "new", "package", "protected", "public", "strictfp", "synchronized", 
-	"throw", "transient", 
+	"<", ">", "/", "|", "&", "@", "%", "&", "*", "~", "exec", "switch", "case", "volatile",
+	"default", "static", "abstract", "final", "implements", "new", "package", "protected",
+	"public", "strictfp", "synchronized", "throw", "transient", "#include", "True", "true",
+	"False", "false"
 ]
 
 programming_keywords_blue = \
@@ -95,14 +96,14 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 
 		result = re.findall('.*?[\n\t (]', result)
 
-		result = [bcolors.CYAN + x + bcolors.ENDC
-			if any(substring in x and len(substring)+2 >= len(x)
-				for substring in programming_keywords_cyan)
+		result = [bcolors.YELLOW + x + bcolors.ENDC
+			if any(substring in x and len(substring)+1 >= len(x)
+				for substring in programming_keywords_yellow)
 			else x for x in result]
 
-		result = [bcolors.MAGENTA + x + bcolors.ENDC
-			if any(substring in x and len(substring)+2 >= len(x)
-				for substring in programming_keywords_magenta)
+		result = [bcolors.CYAN + x + bcolors.ENDC
+			if any(substring in x and len(substring)+1 >= len(x)
+				for substring in programming_keywords_cyan)
 			else x for x in result]
 
 		result = "".join(result)
