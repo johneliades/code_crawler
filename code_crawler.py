@@ -5,6 +5,8 @@ import sys
 import os
 import random
 import re
+import Algorithmia
+import subprocess
 
 class bcolors:
 	HEADER = '\033[95m'
@@ -15,26 +17,6 @@ class bcolors:
 	ENDC = '\033[0m'
 	BOLD = '\033[1m'
 	UNDERLINE = '\033[4m'
-
-def highlight_code(result):
-	result = "".join([bcolors.BLUE + x + bcolors.ENDC
-		if x>="0" and x<="9" else x for x in result])
-
-	result = re.findall('.*?[\n\t (]', result)
-
-	result = [bcolors.YELLOW + x + bcolors.ENDC
-		if any(substring in x and len(substring)+1 >= len(x)
-			for substring in programming_keywords_yellow)
-		else x for x in result]
-
-	result = [bcolors.CYAN + x + bcolors.ENDC
-		if any(substring in x and len(substring)+1 >= len(x)
-			for substring in programming_keywords_cyan)
-		else x for x in result]
-
-	result = "".join(result)
-
-	return result
 
 available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks", "pypi",
 	"askubuntu"]
@@ -91,20 +73,16 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 			if(site == "w3schools"):
 				result = soup.find("div", {"class": "w3-code"})
 				result = result.get_text(separator="\n").strip()
-				result = highlight_code(result)
 			elif(site == "stackoverflow"):
 				result = soup.find("div", {"class": "accepted-answer"})
 				result = result.find("div", {"class": "s-prose"})
 				result = result.find("pre").find(text=True)
-				result = highlight_code(result)
 			elif(site == "tutorialspoint"):
 				result = soup.find("div", {"class": "tutorial-content"})
 				result = result.find("pre").find(text=True)	
-				result = highlight_code(result)
 			elif(site == "geeksforgeeks"):
 				result = soup.find("td", {"class": "code"})
 				result = result.get_text().strip()
-				result = highlight_code(result)
 			elif(site == "pypi"):
 				result = soup.find("span", id="pip-command")
 				result = result.text
@@ -123,10 +101,18 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 		print(bcolors.BLUE + site + ": " + bcolors.RED + url + bcolors.ENDC) 
 		for i in range(int(columns)):
 			print(u'\u2500', end="")
-		print()
 
 		result = result.strip()
-		lines = result.splitlines()
-		for line in lines:
-			print("   " + line)
-		print()
+
+		client = Algorithmia.client('simPbzpOSX4A7ZK6Y4oQjeSGpZ61')
+		algo = client.algo('PetiteProgrammer/ProgrammingLanguageIdentification/0.1.3')
+		code_lang = algo.pipe(result).result[0]
+
+		print(bcolors.BLUE + "This code is in: " + code_lang[0] 
+			+ "\nProbability: " + str(code_lang[1]) + "\n" + bcolors.ENDC)
+
+		process = subprocess.Popen(["pygmentize", "-f", "terminal"],
+			stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+		process.stdin.write(result.encode())
+		print(process.communicate()[0].decode())
+		process.stdin.close()
