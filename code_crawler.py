@@ -1,50 +1,20 @@
 from bs4 import BeautifulSoup
 from googlesearch import search 
+from pygments import lexers, highlight
+from pygments.formatters import TerminalFormatter
 import urllib3
 import sys
-import os
 import random
-import re
 import Algorithmia
-import subprocess
 
 class bcolors:
-	HEADER = '\033[95m'
-	BLUE = '\033[94m'
 	CYAN = '\033[96m'
-	YELLOW = '\033[33m'
 	RED = '\033[31m'
 	ENDC = '\033[0m'
 	BOLD = '\033[1m'
-	UNDERLINE = '\033[4m'
 
 available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks", 
 	"pypi", "askubuntu", "mathworks"]
-
-programming_keywords_yellow = \
-[
-	"auto", "long", "enum", "register", "typedef", "extern", "union", "char", 
-	"float", "short", "unsigned", "const", "signed", "void", "goto", "sizeof", 
-	"bool",	"do", "int", "struct", "_Packed", "double",	"boolean", "byte", 
-	"catch", "class", "extends", "instanceof", "interface", "native", 
-	"private", "super", "this", "throws", "def", "len",	"lambda", "exit"
-]
-
-programming_keywords_cyan = \
-[
-	"break", "if", "else", "pass", "try", "except", "for", "import", "and", "not", "or",
-	"del", "in", "is", "elif", "yield", "with", "from", "print", "raise", "global", 
-	"continue", "finally", "while", "assert", "return", "+", "-", "/", "^", "*", "=",
-	"<", ">", "/", "|", "&", "@", "%", "&", "*", "~", "exec", "switch", "case", "volatile",
-	"default", "static", "abstract", "final", "implements", "new", "package", "protected",
-	"public", "strictfp", "synchronized", "throw", "transient", "#include", "True", "true",
-	"False", "false"
-]
-
-programming_keywords_blue = \
-[
-	"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
-]
 
 try:
 	query = sys.argv[1]
@@ -52,7 +22,8 @@ except:
 	print("Give search query as argument")
 	sys.exit()
 
-rows, columns = os.popen('stty size', 'r').read().split()
+client = Algorithmia.client('simPbzpOSX4A7ZK6Y4oQjeSGpZ61')
+algo = client.algo('PetiteProgrammer/ProgrammingLanguageIdentification/0.1.3')
 
 http = urllib3.PoolManager()
 print()
@@ -93,46 +64,33 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 			elif(site == "mathworks"):
 				result = soup.find("div", {"class": "codeinput"})
 				result = result.get_text(separator="\n").strip()
+
+			result = result.strip()
+			if result not in total_results:
+				total_results.append(result)
+			else:
+				continue
+
 		except:
 			continue
 
-		if result not in total_results:
-			total_results.append(result)
-		else:
-			continue
-
-		print(bcolors.BLUE + site + ": " + bcolors.RED + url + bcolors.ENDC) 
-
-		for i in range(min(int(columns), len(site + ": " + url))):
+		print(bcolors.CYAN + bcolors.BOLD + site + ": " + bcolors.RED + url + bcolors.ENDC) 
+		for i in range(len(site + ": " + url)):
 			print(u'\u2501', end="")
-		
 		print()
 
-		client = Algorithmia.client('simPbzpOSX4A7ZK6Y4oQjeSGpZ61')
-		algo = client.algo('PetiteProgrammer/ProgrammingLanguageIdentification/0.1.3')
 		code_lang = algo.pipe(result).result[0]
+		language = code_lang[0]
+		probability = code_lang[1]
 
-	#	print(bcolors.BLUE + code_lang[0] + " " + 
-	#		str(round(code_lang[1], 3) * 100) + "% certainty" + bcolors.ENDC)
-
-	#	for i in range(len(code_lang[0] + str(round(code_lang[1], 3) * 100)) + 12):
+	#	print(bcolors.CYAN + language + " " + 
+	#		str(round(probability, 3) * 100) + "% certainty" + bcolors.ENDC)
+	#	for i in range(len(language + str(round(probability, 3) * 100)) + 12):
 	#		print(u'\u2500', end="")
-
 	#	print()
 
-		result = result.strip()
+		if(language == "markdown"):
+			language = "md"
 
-		lexer = code_lang[0]
-		if(lexer == "markdown"):
-			lexer = "md"
-
-		process = subprocess.Popen(["pygmentize", "-f", "terminal", "-l", lexer],
-			stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-		process.stdin.write(result.encode())
-
-		lines = process.communicate()[0].decode().splitlines()
-		for line in lines:
-			print("    " + line)
-
-		print()
-		process.stdin.close()
+		lexer = lexers.get_lexer_by_name(language)
+		print(highlight(result, lexer, TerminalFormatter()))
