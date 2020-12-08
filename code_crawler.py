@@ -18,8 +18,8 @@ class bcolors:
 	BOLD = '\033[1m'
 	UNDERLINE = '\033[4m'
 
-available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks", "pypi",
-	"askubuntu"]
+available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks", 
+	"pypi", "askubuntu", "mathworks"]
 
 programming_keywords_yellow = \
 [
@@ -90,6 +90,9 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 				result = soup.find("div", {"class": "accepted-answer"})
 				result = result.find("div", {"class": "s-prose"})
 				result = result.find("pre").find(text=True)
+			elif(site == "mathworks"):
+				result = soup.find("div", {"class": "codeinput"})
+				result = result.get_text(separator="\n").strip()
 		except:
 			continue
 
@@ -99,19 +102,31 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 			continue
 
 		print(bcolors.BLUE + site + ": " + bcolors.RED + url + bcolors.ENDC) 
-		for i in range(int(columns)):
-			print(u'\u2500', end="")
 
-		result = result.strip()
+		for i in range(min(int(columns), len(site + ": " + url))):
+			print(u'\u2501', end="")
+		
+		print()
 
 		client = Algorithmia.client('simPbzpOSX4A7ZK6Y4oQjeSGpZ61')
 		algo = client.algo('PetiteProgrammer/ProgrammingLanguageIdentification/0.1.3')
 		code_lang = algo.pipe(result).result[0]
 
-		print(bcolors.BLUE + "This code is in: " + code_lang[0] 
-			+ "\nProbability: " + str(code_lang[1]) + "\n" + bcolors.ENDC)
+	#	print(bcolors.BLUE + code_lang[0] + " " + 
+	#		str(round(code_lang[1], 3) * 100) + "% certainty" + bcolors.ENDC)
 
-		process = subprocess.Popen(["pygmentize", "-f", "terminal"],
+	#	for i in range(len(code_lang[0] + str(round(code_lang[1], 3) * 100)) + 12):
+	#		print(u'\u2500', end="")
+
+	#	print()
+
+		result = result.strip()
+
+		lexer = code_lang[0]
+		if(lexer == "markdown"):
+			lexer = "md"
+
+		process = subprocess.Popen(["pygmentize", "-f", "terminal", "-l", lexer],
 			stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 		process.stdin.write(result.encode())
 		print(process.communicate()[0].decode())
