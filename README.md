@@ -3,7 +3,7 @@
 A simple code crawler to avoid visiting stackoverflow, w3schools, tutorialspoint, 
 geeksforgeeks, pyp, askubuntu and mathworks ever again.
 					
-![Image of crawler](https://github.com/johneliades/code_crawler/blob/master/preview.png)
+![Image of crawler](https://github.com/johneliades/code_crawler/blob/main/preview.png)
 
 ## Clone
 
