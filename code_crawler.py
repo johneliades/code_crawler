@@ -38,7 +38,7 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 
 	if(site in available_sites):
 		response = http.request('GET', url)
-		soup = BeautifulSoup(response.data, features="lxml")
+		soup = BeautifulSoup(response.data, features="html.parser")
 
 		try:
 			if(site == "w3schools"):
