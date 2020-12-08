@@ -129,5 +129,10 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 		process = subprocess.Popen(["pygmentize", "-f", "terminal", "-l", lexer],
 			stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 		process.stdin.write(result.encode())
-		print(process.communicate()[0].decode())
+
+		lines = process.communicate()[0].decode().splitlines()
+		for line in lines:
+			print("    " + line)
+
+		print()
 		process.stdin.close()
