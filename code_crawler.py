@@ -75,7 +75,7 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 			continue
 
 		print(bcolors.CYAN + bcolors.BOLD + site + ": " + bcolors.RED + url + bcolors.ENDC) 
-		for i in range(len(site + ": " + url)):
+		for i in range(min(80, len(site + ": " + url))):
 			print(u'\u2501', end="")
 		print()
 
