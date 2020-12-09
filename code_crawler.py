@@ -91,6 +91,8 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 
 		if(language == "markdown"):
 			language = "md"
+		elif(language == "vb"):
+			language = "basic"
 
 		lexer = lexers.get_lexer_by_name(language)
 		print(highlight(result, lexer, TerminalFormatter()))
