@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from bs4 import BeautifulSoup
 from googlesearch import search 
 from pygments import lexers, highlight
