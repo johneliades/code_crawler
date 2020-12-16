@@ -19,8 +19,7 @@ available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeek
 try:
 	query = sys.argv[1]
 except:
-	print("Give search query as argument")
-	sys.exit()
+	query = input("Give search query: ")
 
 client = Algorithmia.client('simPbzpOSX4A7ZK6Y4oQjeSGpZ61')
 algo = client.algo('PetiteProgrammer/ProgrammingLanguageIdentification/0.1.3')
