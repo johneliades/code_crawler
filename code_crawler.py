@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import threading
 from bs4 import BeautifulSoup
 from googlesearch import search 
 from pygments import lexers, highlight
@@ -8,6 +9,7 @@ import urllib3
 import sys
 import random
 import Algorithmia
+
 
 class bcolors:
 	CYAN = '\033[96m'
@@ -26,16 +28,20 @@ except:
 client = Algorithmia.client('simPbzpOSX4A7ZK6Y4oQjeSGpZ61')
 algo = client.algo('PetiteProgrammer/ProgrammingLanguageIdentification/0.1.3')
 
-http = urllib3.PoolManager()
 print()
 
+num_results = 10
+http = urllib3.PoolManager()
+mutex = threading.Lock()
 total_results = []
-for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uniform(0, 1)): 
+threads = []
+
+def find_answer(url):
 	site = [x for x in available_sites if url.find(x)!=-1]
 	if(len(site)!=0):
 		site = site[0]
 	else:
-		continue
+		return
 
 	if(site in available_sites):
 		response = http.request('GET', url)
@@ -70,30 +76,36 @@ for url in search(query, tld="com", lang='en', num=10, stop=10, pause=random.uni
 			if result not in total_results:
 				total_results.append(result)
 			else:
-				continue
+				return
 
 		except:
-			continue
-
-		print(bcolors.CYAN + bcolors.BOLD + site + ": " + bcolors.RED + url + bcolors.ENDC) 
-		for i in range(min(80, len(site + ": " + url))):
-			print(u'\u2501', end="")
-		print()
-
+			return
+    
 		code_lang = algo.pipe(result).result[0]
 		language = code_lang[0]
 		probability = code_lang[1]
 
-	#	print(bcolors.CYAN + language + " " + 
-	#		str(round(probability, 3) * 100) + "% certainty" + bcolors.ENDC)
-	#	for i in range(len(language + str(round(probability, 3) * 100)) + 12):
-	#		print(u'\u2500', end="")
-	#	print()
+		with mutex:
+			print(bcolors.CYAN + bcolors.BOLD + site + ": " + bcolors.RED + url + bcolors.ENDC) 
+			for i in range(min(80, len(site + ": " + url))):
+				print(u'\u2501', end="")
+			print()
 
-		if(language == "markdown"):
-			language = "md"
-		elif(language == "vb"):
-			language = "basic"
+		#	print(bcolors.CYAN + language + " " + 
+		#		str(round(probability, 3) * 100) + "% certainty" + bcolors.ENDC)
+		#	for i in range(len(language + str(round(probability, 3) * 100)) + 12):
+		#		print(u'\u2500', end="")
+		#	print()
 
-		lexer = lexers.get_lexer_by_name(language)
-		print(highlight(result, lexer, TerminalFormatter()))
+			if(language == "markdown"):
+				language = "md"
+			elif(language == "vb"):
+				language = "basic"
+
+			lexer = lexers.get_lexer_by_name(language)
+			print(highlight(result, lexer, TerminalFormatter()))
+
+for url in search(query, tld="com", lang='en', num=num_results, stop=num_results, pause=random.uniform(0, 1)): 
+	t = threading.Thread(target=find_answer, args=(url,))
+	threads.append(t)
+	t.start()
