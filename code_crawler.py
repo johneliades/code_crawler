@@ -39,19 +39,10 @@ except:
 
 client = Algorithmia.client(api_key)
 algo = client.algo('PetiteProgrammer/ProgrammingLanguageIdentification/0.1.3')
-try:
-	algo.pipe(" ").result[0]
-except:
-	print()
-	print(bcolors.RED)
-	print("API key in file \"api_key\" is wrong, check again")
-	print(bcolors.ENDC)
-	print()
-	exit()
 
 print()
 
-num_results = 10
+num_results = 3
 http = urllib3.PoolManager()
 mutex = threading.Lock()
 total_results = []
@@ -102,7 +93,14 @@ def find_answer(url):
 		except:
 			return
     
-		code_lang = algo.pipe(result).result[0]
+		try:
+			code_lang = algo.pipe(result).result[0]
+		except(Algorithmia.errors.AlgorithmException):
+			print(bcolors.RED)
+			print("API key in file \"api_key\" is wrong, check again")
+			print(bcolors.ENDC)
+			exit()
+
 		language = code_lang[0]
 		probability = code_lang[1]
 
@@ -126,7 +124,13 @@ def find_answer(url):
 			lexer = lexers.get_lexer_by_name(language)
 			print(highlight(result, lexer, TerminalFormatter()))
 
+once = True
+
 for url in search(query, tld="com", lang='en', num=num_results, stop=num_results, pause=random.uniform(0, 1)): 
+	if(once):
+		find_answer(url)
+		once = False
+		continue
 	t = threading.Thread(target=find_answer, args=(url,))
 	threads.append(t)
 	t.start()
