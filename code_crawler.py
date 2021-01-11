@@ -42,7 +42,7 @@ algo = client.algo('PetiteProgrammer/ProgrammingLanguageIdentification/0.1.3')
 
 print()
 
-num_results = 3
+num_results = 5
 http = urllib3.PoolManager()
 mutex = threading.Lock()
 total_results = []
