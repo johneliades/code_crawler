@@ -9,7 +9,7 @@ import urllib3
 import sys
 import random
 import Algorithmia
-
+import os
 
 class bcolors:
 	CYAN = '\033[96m'
@@ -25,7 +25,19 @@ try:
 except:
 	query = input("Give search query: ")
 
-client = Algorithmia.client('simPbzpOSX4A7ZK6Y4oQjeSGpZ61')
+try:
+	keyFile = open(os.path.dirname(os.path.realpath(__file__)) + '/api_key', 'r')
+	api_key = keyFile.readline().strip()
+except:
+	print()
+	print("Please get a free API key by signing up and write it in a ", end="")
+	print("file called \"api_key\" in the same folder.")
+	print(bcolors.CYAN)
+	print("https://algorithmia.com/algorithms/PetiteProgrammer/ProgrammingLanguageIdentification")
+	print(bcolors.ENDC)
+	exit()
+
+client = Algorithmia.client(api_key)
 algo = client.algo('PetiteProgrammer/ProgrammingLanguageIdentification/0.1.3')
 
 print()
