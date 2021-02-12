@@ -16,7 +16,7 @@ Or by clicking on the green "Clone or download" button on top and then decompres
 
 ## Run
 
-After installing the missing libraries and getting a free and fast API key from the link in credits,
+After installing the missing libraries and getting a free and fast API key from the link in the Credits below,
 for the optional syntax highlighting to work, you can run:
 
 ```
@@ -34,7 +34,9 @@ highlighting giving you the answer in an organised way.
 ## Credits
 
 Credits to https://algorithmia.com/algorithms/PetiteProgrammer/ProgrammingLanguageIdentification
-for providing the useful programming language identification API.
+for providing the useful programming language identification API. Algorithmia gives 5k free tokens
+per month and the tool uses some for each search. One day I will build my own fully free and 
+offline neural network for this for faster results.
 
 ## Author
 
