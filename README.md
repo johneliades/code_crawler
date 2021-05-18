@@ -29,7 +29,7 @@ After google searching your question and taking the first 10(by default) sites i
 the script visits the site if it belongs in the aforementioned sites. It then takes the 
 accepted answer's code block, and sends it to the ProgrammingLanguageIdentification API. 
 The most probable language is returned and the appropriate lexer is used for the syntax 
-highlighting giving you the answer in an organised way.
+highlighting, giving you the answer in an organised way.
 
 ## Credits
 
