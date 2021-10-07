@@ -7,8 +7,9 @@ from pygments.formatters import TerminalFormatter
 import urllib3
 import sys
 import random
-from guesslang import Guess
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+from guesslang import Guess
 
 class bcolors:
 	CYAN = '\033[96m'
@@ -26,7 +27,7 @@ except:
 
 print()
 
-num_results = 7
+num_results = 10
 http = urllib3.PoolManager()
 total_results = []
 guess = Guess()
@@ -39,12 +40,10 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 		continue
 
 	if(site in available_sites):
-		response = http.request('GET', url)
-		soup = BeautifulSoup(response.data, features="html.parser")
-
-		result = ""
-
 		try:
+			response = http.request('GET', url)
+			soup = BeautifulSoup(response.data, features="html.parser")
+
 			if(site == "w3schools"):
 				result = soup.find("div", {"class": "w3-code"})
 				result = result.get_text(separator="\n").strip()
@@ -91,7 +90,7 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 		# 	print(u'\u2500', end="")
 		# print()
 
-		if(language == "markdown"):
+		if(language == "Markdown"):
 			language = "md"
 		elif(language == "vb"):
 			language = "basic"		
