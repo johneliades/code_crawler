@@ -110,12 +110,12 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 			print(u'\u2501', end="")
 		print()
 
-		# if guess_flag:
-		# 	print(bcolors.CYAN + language + " " + 
-		# 		str(round(probability, 3) * 100) + "% certainty" + bcolors.ENDC)
-		# 	for i in range(len(language + str(round(probability, 3) * 100)) + 12):
-		# 		print(u'\u2500', end="")
-		# 	print()
+		if guess_flag:
+			print(bcolors.CYAN + language + " " + 
+				str(round(probability, 3) * 100) + "% certainty" + bcolors.ENDC)
+			for i in range(len(language + str(round(probability, 3) * 100)) + 12):
+				print(u'\u2500', end="")
+			print()
 
 		if(language == "Markdown"):
 			language = "md"
