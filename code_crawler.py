@@ -8,6 +8,7 @@ import urllib3
 import sys
 import random
 import os
+import certifi
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 from guesslang import Guess
 
@@ -28,7 +29,7 @@ except:
 print()
 
 num_results = 10
-http = urllib3.PoolManager()
+http = urllib3.PoolManager(ca_certs=certifi.where(), cert_reqs='REQUIRED')
 total_results = []
 
 guess_flag = False
