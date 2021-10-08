@@ -71,10 +71,9 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 		continue
 
 	if(site in available_sites):
+		response = http.request('GET', url)
+		soup = BeautifulSoup(response.data, features="html.parser")
 		try:
-			response = http.request('GET', url)
-			soup = BeautifulSoup(response.data, features="html.parser")
-
 			if(site == "w3schools"):
 				result = soup.find("div", {"class": "w3-code"})
 				result = result.get_text(separator="\n").strip()
