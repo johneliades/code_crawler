@@ -33,26 +33,32 @@ total_results = []
 
 guess_flag = False
 
-if "c" in query:
+if "c".lower() in query.lower():
 	language = "c"
-elif "java" in query:
+elif "java".lower() in query.lower():
 	language = "java"
-elif "python" in query:
+elif "python".lower() in query.lower():
 	language = "python3"
-elif "lua" in query:
+elif "lua".lower() in query.lower():
 	language = "lua"
-elif "javascript" in query or "js" in query:
+elif "javascript".lower() in query.lower() or "js".lower() in query.lower():
 	language = "javascript"
-elif "go" in query or "golang" in query:
+elif "go".lower() in query.lower() or "golang".lower() in query.lower():
 	language = "go"
-elif "cpp" in query or "c++" in query:
+elif "cpp".lower() in query.lower() or "c++".lower() in query.lower():
 	language = "cpp"
-elif "matlab" in query:
+elif "matlab".lower() in query.lower():
 	language = "matlab"
-elif "ruby" in query:
+elif "ruby".lower() in query.lower():
 	language = "ruby"
-elif "c#" in query  or "csharp" in query:
+elif "c#".lower() in query.lower()  or "csharp".lower() in query.lower():
 	language = "csharp"
+elif "css".lower() in query.lower():
+	language = "css"
+elif "html".lower() in query.lower():
+	language = "html"
+elif "latex".lower() in query.lower():
+	language = "latex"
 else:
 	guess = Guess()
 	guess_flag = True
