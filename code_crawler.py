@@ -30,7 +30,32 @@ print()
 num_results = 10
 http = urllib3.PoolManager()
 total_results = []
-guess = Guess()
+
+guess_flag = False
+
+if "c" in query:
+	language = "c"
+elif "java" in query:
+	language = "java"
+elif "python" in query:
+	language = "python3"
+elif "lua" in query:
+	language = "lua"
+elif "javascript" in query or "js" in query:
+	language = "javascript"
+elif "go" in query or "golang" in query:
+	language = "go"
+elif "cpp" in query or "c++" in query:
+	language = "cpp"
+elif "matlab" in query:
+	language = "matlab"
+elif "ruby" in query:
+	language = "ruby"
+elif "c#" in query  or "csharp" in query:
+	language = "csharp"
+else:
+	guess = Guess()
+	guess_flag = True
 
 for url in search(query, tld="com", lang='en', num=num_results, stop=num_results, pause=random.uniform(0, 1)): 
 	site = [x for x in available_sites if url.find(x)!=-1]
@@ -76,19 +101,21 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 		except:
 			continue
 
-		language = guess.language_name(result)
-		probability = guess.probabilities(result)[0][1]
+		if guess_flag:
+			language = guess.language_name(result)
+			probability = guess.probabilities(result)[0][1]
 
 		print(bcolors.CYAN + bcolors.BOLD + site + ": " + bcolors.RED + url + bcolors.ENDC) 
 		for i in range(min(80, len(site + ": " + url))):
 			print(u'\u2501', end="")
 		print()
 
-		# print(bcolors.CYAN + language + " " + 
-		# 	str(round(probability, 3) * 100) + "% certainty" + bcolors.ENDC)
-		# for i in range(len(language + str(round(probability, 3) * 100)) + 12):
-		# 	print(u'\u2500', end="")
-		# print()
+		# if guess_flag:
+		# 	print(bcolors.CYAN + language + " " + 
+		# 		str(round(probability, 3) * 100) + "% certainty" + bcolors.ENDC)
+		# 	for i in range(len(language + str(round(probability, 3) * 100)) + 12):
+		# 		print(u'\u2500', end="")
+		# 	print()
 
 		if(language == "Markdown"):
 			language = "md"
