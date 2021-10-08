@@ -18,7 +18,7 @@ class bcolors:
 	BOLD = '\033[1m'
 
 available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks", 
-	"pypi", "askubuntu", "mathworks"]
+	"pypi", "askubuntu", "mathworks", "stackexchange"]
 
 try:
 	query = sys.argv[1]
@@ -98,6 +98,11 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 			elif(site == "mathworks"):
 				result = soup.find("div", {"class": "codeinput"})
 				result = result.get_text(separator="\n").strip()
+			elif(site == "stackexchange"):
+				result = soup.find("div", {"class": "accepted-answer"})
+				result = result.find("div", {"class": "answercell"})
+				result = result.find("div", {"class": "s-prose"})
+				result = result.get_text().strip()
 
 			result = result.strip()
 			if result not in total_results:
