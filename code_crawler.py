@@ -21,7 +21,7 @@ class bcolors:
 	BOLD = '\033[1m'
 
 available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks", 
-	"pypi", "askubuntu", "mathworks", "stackexchange", "unrealengine"]
+	"pypi", "askubuntu", "mathworks", "stackexchange", "unrealengine", "microsoft"]
 
 try:
 	query = sys.argv[1]
@@ -101,6 +101,9 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 				result = soup.find("div", {'class': ['answer', 'accepted-answer']})
 				result = result.find("div", {"class": "answer-body"})
 				result = result.find("pre").find(text=True)	
+			elif site == "microsoft":
+				result = soup.find("code")
+				result = result.get_text().strip()
 
 			result = result.strip()
 			if result not in total_results:
