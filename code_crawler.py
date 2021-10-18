@@ -20,11 +20,18 @@ class bcolors:
 	ENDC = '\033[0m'
 	BOLD = '\033[1m'
 
-available_sites = ["w3schools", "stackoverflow", "tutorialspoint", "geeksforgeeks", 
-	"pypi", "askubuntu", "mathworks", "stackexchange", "unrealengine", "microsoft"]
+available_sites = ["w3schools", "stackoverflow", "tutorialspoint", 
+				"geeksforgeeks", "pypi", "askubuntu", "mathworks",
+				"stackexchange", "unrealengine", "microsoft"]
+
+languages = ["c", "java", "python", "lua", "javascript", "js" ,"go", 
+			"golang", "cpp", "c++", "matlab", "ruby", "c#", "csharp",
+			"css", "html", "latex"]
 
 try:
 	query = sys.argv[1]
+	if("\"" not in query and "'" not in query):
+		query = ' '.join(sys.argv[1:])
 except:
 	query = input("Give search query: ")
 
@@ -34,39 +41,15 @@ num_results = 10
 http = urllib3.PoolManager(ca_certs=certifi.where(), cert_reqs='REQUIRED')
 total_results = []
 
-guess_flag = False
+guess = Guess()
+guess_flag = True
 
-if "c".lower() in query.lower().split(' '):
-	language = "c"
-elif "java".lower() in query.lower().split(' '):
-	language = "java"
-elif "python".lower() in query.lower().split(' '):
-	language = "python3"
-elif "lua".lower() in query.lower().split(' '):
-	language = "lua"
-elif "javascript".lower() in query.lower().split(' ') or "js".lower() in query.lower().split(' '):
-	language = "javascript"
-elif "go".lower() in query.lower().split(' ') or "golang".lower() in query.lower().split(' '):
-	language = "go"
-elif "cpp".lower() in query.lower().split(' ') or "c++".lower() in query.lower().split(' '):
-	language = "cpp"
-elif "matlab".lower() in query.lower().split(' '):
-	language = "matlab"
-elif "ruby".lower() in query.lower().split(' '):
-	language = "ruby"
-elif "c#".lower() in query.lower().split(' ')  or "csharp".lower() in query.lower().split(' '):
-	language = "csharp"
-elif "css".lower() in query.lower().split(' '):
-	language = "css"
-elif "html".lower() in query.lower().split(' '):
-	language = "html"
-elif "latex".lower() in query.lower().split(' '):
-	language = "latex"
-else:
-	guess = Guess()
-	guess_flag = True
+for language in languages:
+	if(language.lower() in query.lower().split(' ')):
+		guess_flag = False
+		break
 
-for url in search(query, tld="com", lang='en', num=num_results, stop=num_results, pause=random.uniform(0, 1)): 
+for url in search(query, tld="com", lang='en', num=num_results, stop=num_results, pause=random.uniform(0, 0.5)): 
 	site = [x for x in available_sites if url.find(x)!=-1]
 	if(len(site)!=0):
 		site = site[0]
