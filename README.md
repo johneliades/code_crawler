@@ -17,10 +17,16 @@ decompressing the zip.
 
 ## Run
 
-After installing the missing libraries you can run:
+Install the missing libraries:
 
 ```
-python3 code_crawler.py "any possible programming question"
+pip install -r requirements.txt
+```
+
+and then you can run:
+
+```
+python code_crawler.py "any possible programming question"
 ```
 
 ## How it works
