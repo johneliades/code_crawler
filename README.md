@@ -29,6 +29,12 @@ and then you can run:
 python code_crawler.py "any possible programming question"
 ```
 
+or:
+
+```
+python code_crawler.py any possible programming question
+```
+
 ## How it works
 
 After google searching your question and taking the first 10(by default) sites 
