@@ -73,7 +73,12 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 				result = result.find("pre").find(text=True)	
 			elif site == "geeksforgeeks":
 				result = soup.find("td", {"class": "code"})
-				result = result.get_text().strip()
+				results = result.find_all(class_="line")
+				
+				result = ""
+				for line in results:
+					result += line.getText() + "\n"
+
 			elif site == "pypi":
 				result = soup.find("span", id="pip-command")
 				result = result.get_text().strip()

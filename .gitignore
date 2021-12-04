@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 api_key
+.google-cookie
