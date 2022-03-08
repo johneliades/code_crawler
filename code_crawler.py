@@ -10,9 +10,6 @@ import random
 import os
 import certifi
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-from guesslang import Guess
-import tensorflow as tf   
-tf.get_logger().setLevel('ERROR')
 
 class bcolors:
 	CYAN = '\033[96m'
@@ -37,17 +34,9 @@ except:
 
 print()
 
-num_results = 10
+num_results = 7
 http = urllib3.PoolManager(ca_certs=certifi.where(), cert_reqs='REQUIRED')
 total_results = []
-
-guess = Guess()
-guess_flag = True
-
-for language in languages:
-	if(language.lower() in query.lower().split(' ')):
-		guess_flag = False
-		break
 
 for url in search(query, tld="com", lang='en', num=num_results, stop=num_results, pause=random.uniform(0, 0.5)): 
 	site = [x for x in available_sites if url.find(x)!=-1]
@@ -101,28 +90,18 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 		except:
 			continue
 
-		if guess_flag:
-			language = guess.language_name(result)
-			probability = guess.probabilities(result)[0][1]
-
 		print(bcolors.CYAN + bcolors.BOLD + site + ": " + bcolors.RED + url + bcolors.ENDC) 
 		for i in range(min(80, len(site + ": " + url))):
 			print(u'\u2501', end="")
 		print()
 
-		if guess_flag:
-			print(bcolors.CYAN + language + " " + 
-				str(round(probability, 3) * 100) + "% certainty" + bcolors.ENDC)
-			for i in range(len(language + str(round(probability, 3) * 100)) + 12):
-				print(u'\u2500', end="")
-			print()
+		lexer = None
+		for language in languages:
+			if(language.lower() in query.lower().split(' ')):
+				lexer = lexers.get_lexer_by_name(language)
+				break
 
-		if(language == "Markdown"):
-			language = "md"
-		elif(language == "vb"):
-			language = "basic"		
-		elif(language == "Batchfile"):
-			language = "batch"
-
-		lexer = lexers.get_lexer_by_name(language)
-		print(highlight(result, lexer, TerminalFormatter()))
+		if(lexer!=None):
+			print(highlight(result, lexer, TerminalFormatter()))
+		else:
+			print(result)

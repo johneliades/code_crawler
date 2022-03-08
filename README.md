@@ -37,11 +37,11 @@ python code_crawler.py any possible programming question
 
 ## How it works
 
-After google searching your question and taking the first 10(by default) sites 
+After google searching your question and taking the first 7(by default) sites 
 into account, the script visits the site if it belongs in the aforementioned 
-sites. It then takes the accepted answer's code block, and uses Guesslang to 
-find the most probable language and then the appropriate lexer is used for the 
-syntax highlighting, giving you the answer in an organised way.
+sites. It then takes the accepted answer's code block, and uses the appropriate 
+lexer according to your keywords for the syntax highlighting, giving you the 
+answer in an organised way.
 
 ## Author
 
