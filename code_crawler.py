@@ -56,10 +56,10 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 				result = soup.find("div", {'class': ['answer', 'accepted-answer']})
 				result = result.find("div", {"class": "answercell"})
 				result = result.find("div", {"class": "s-prose"})
-				result = result.find("pre").find(text=True)
+				result = result.find("pre").text
 			elif site == "tutorialspoint":
 				result = soup.find("div", {"class": "tutorial-content"})
-				result = result.find("pre").find(text=True)	
+				result = result.find("pre").text	
 			elif site == "geeksforgeeks":
 				result = soup.find("td", {"class": "code"})
 				results = result.find_all(class_="line")
@@ -73,16 +73,16 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 				result = result.get_text().strip()
 			elif site == "mathworks":
 				result = soup.find("div", {"class": "codeinput"})
-				result = result.find("pre").find(text=True)	
+				result = result.find("pre").text	
 			elif site == "unrealengine":
 				result = soup.find("div", {'class': ['answer', 'accepted-answer']})
 				result = result.find("div", {"class": "answer-body"})
-				result = result.find("pre").find(text=True)	
+				result = result.find("pre").text	
 			elif site == "microsoft":
 				result = soup.find("code")
 				result = result.get_text().strip()
 
-			result = result.strip()
+			result = result.strip() + "\n"
 			if result not in total_results:
 				total_results.append(result)
 			else:
