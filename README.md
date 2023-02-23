@@ -46,9 +46,14 @@ answer in an organised way.
 ## Code Classifier
 Its is based on [CodeBERTA](https://huggingface.co/huggingface/CodeBERTa-language-id) it is finetuned using a small version of [Github-code-snippets](https://www.kaggle.com/datasets/simiotic/github-code-snippets-development-sample?datasetId=1198320) in order to be able to classify 20 popular programming and scripting languages. Although the predictions most of the time are correct , for some languages the confidence score is low.We think that problem might be resolved by using a bigger version of [Github-code-snippets](https://www.kaggle.com/datasets/simiotic/github-code-snippets). 
 
-inference dependencies : pip install huggingface<br/>
-train dependencies : pip install -r code_classifier/requirements.txt
-
+inference dependencies : 
+```
+pip install huggingface
+```
+train dependencies : 
+```
+pip install -r code_classifier/requirements.txt
+```
 To use the pretrained model download .bin file from this [google-drive-link](https://drive.google.com/file/d/1VxrJ8zUZuNA-ojTA-z1FQuvPseqYQOJE/view?usp=share_link) and paste it on 
 code_crawler/code_classifier/CodeBERT-github-code-snippet-tiny directory.
 
