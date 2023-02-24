@@ -47,10 +47,10 @@ code, giving you the answer in an organised way.
 ## Code Classifier
 
 It's based on [CodeBERTA](https://huggingface.co/huggingface/CodeBERTa-language-id) 
-and finetuned using [Github-code-snippets-samples](https://www.kaggle.com/datasets/simiotic/github-code-snippets-development-sample?datasetId=1198320), a smaller dataset made for 
+and finetuned using [Github-code-snippets-sample](https://www.kaggle.com/datasets/simiotic/github-code-snippets-development-sample?datasetId=1198320), a smaller dataset made for 
 prototyping purposes, in order to be able to classify 20 popular programming and 
 scripting languages. Although the predictions most of the time are correct, for some 
-languages the confidence score is low. We think that problem might be resolved by 
+languages the confidence score is low. We think that the problem might be resolved by 
 using the bigger version [Github-code-snippets](https://www.kaggle.com/datasets/simiotic/github-code-snippets). 
 
 inference dependencies : 
