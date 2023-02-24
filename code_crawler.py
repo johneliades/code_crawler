@@ -10,26 +10,31 @@ import random
 import os
 import certifi
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-from transformers import TextClassificationPipeline,RobertaForSequenceClassification,RobertaTokenizer
-from time import time
+import threading
 
-CODEBERTA_LANGUAGE_ID = "huggingface/CodeBERTa-language-id"
+def import_transformers():
+	global pipeline
 
-code_tokenizer = RobertaTokenizer.from_pretrained(CODEBERTA_LANGUAGE_ID)
-code_classifier = RobertaForSequenceClassification.from_pretrained(
-	"./code_classifier/CodeBERT-github-code-snippet-tiny")
+	from transformers import TextClassificationPipeline, RobertaForSequenceClassification, RobertaTokenizer
 
-pipeline = TextClassificationPipeline(
-    model= code_classifier,
-    tokenizer= code_tokenizer
-)
+	code_tokenizer = RobertaTokenizer.from_pretrained("huggingface/CodeBERTa-language-id")
 
-start = time()
+	code_classifier = RobertaForSequenceClassification.from_pretrained(
+		"./code_classifier/CodeBERT-github-code-snippet-tiny")
+
+	pipeline = TextClassificationPipeline(
+		model= code_classifier,
+		tokenizer= code_tokenizer
+	)
+
+# Create a new thread to import libraries
+import_thread = threading.Thread(target=import_transformers)
+import_thread.start()
 
 class bcolors:
 	CYAN = '\033[96m'
 	RED = '\033[31m'
-	NEW = '\033[32m'
+	GREEN = '\033[32m'
 	ENDC = '\033[0m'
 	BOLD = '\033[1m'
 
@@ -46,11 +51,13 @@ except:
 
 print()
 
-num_results = 6
+num_search_results = 7
 http = urllib3.PoolManager(ca_certs=certifi.where(), cert_reqs='REQUIRED')
-total_results = []
+code_blocks = []
 
-for url in search(query, tld="com", lang='en', num=num_results, stop=num_results, pause=random.uniform(0, 0.5)): 
+for url in search(query, tld="com", lang='en', 
+	num=num_search_results, stop=num_search_results, pause=random.uniform(0, 0.5)): 
+	
 	site = [x for x in available_sites if url.find(x)!=-1]
 	if(len(site)!=0):
 		site = site[0]
@@ -63,40 +70,40 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 		try:
 			if site == "w3schools":
 				result = soup.find("div", {"class": "w3-code"})
-				result = result.get_text(separator="\n").strip()
+				cur_code_block = result.get_text(separator="\n").strip()
 			elif site == "stackoverflow" or site == "askubuntu" or site == "stackexchange":
 				result = soup.find("div", {'class': ['answer', 'accepted-answer']})
 				result = result.find("div", {"class": "answercell"})
 				result = result.find("div", {"class": "s-prose"})
-				result = result.find("pre").text
+				cur_code_block = result.find("pre").text
 			elif site == "tutorialspoint":
 				result = soup.find("div", {"class": "tutorial-content"})
-				result = result.find("pre").text	
+				cur_code_block = result.find("pre").text	
 			elif site == "geeksforgeeks":
 				result = soup.find("td", {"class": "code"})
 				results = result.find_all(class_="line")
-				
-				result = ""
+
+				cur_code_block = ""
 				for line in results:
-					result += line.getText() + "\n"
+					cur_code_block += line.getText() + "\n"
 
 			elif site == "pypi":
 				result = soup.find("span", id="pip-command")
-				result = result.get_text().strip()
+				cur_code_block = result.get_text().strip()
 			elif site == "mathworks":
 				result = soup.find("div", {"class": "codeinput"})
-				result = result.find("pre").text	
+				cur_code_block = result.find("pre").text	
 			elif site == "unrealengine":
 				result = soup.find("div", {'class': ['answer', 'accepted-answer']})
 				result = result.find("div", {"class": "answer-body"})
-				result = result.find("pre").text	
+				cur_code_block = result.find("pre").text	
 			elif site == "microsoft":
 				result = soup.find("code")
 				result = result.get_text().strip()
 
-			result = result.strip() + "\n"
-			if result not in total_results:
-				total_results.append(result)
+			cur_code_block = cur_code_block.strip() + "\n"
+			if cur_code_block not in code_blocks:
+				code_blocks.append(cur_code_block)
 			else:
 				continue
 		except:
@@ -112,10 +119,12 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 		print(bcolors.CYAN + bcolors.BOLD + site + ": " + bcolors.RED + url + bcolors.ENDC, end="")
 
 		if(lexer == None):
-			prediction = pipeline(result)
+			import_thread.join()
+
+			prediction = pipeline(cur_code_block)
 			lexer = lexers.get_lexer_by_name(prediction[0]["label"])
 
-			print(bcolors.NEW + " (" + prediction[0]["label"] + " " + 
+			print(bcolors.GREEN + " (" + prediction[0]["label"] + " " + 
 				str(round(prediction[0]["score"]*100, 2)) + "%)" + bcolors.ENDC) 
 		else:
 			print(bcolors.ENDC)
@@ -125,6 +134,6 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 		print()
 
 		if(lexer!=None):
-			print(highlight(result, lexer, TerminalFormatter()))
+			print(highlight(cur_code_block, lexer, TerminalFormatter()))
 		else:
-			print(result)
+			print(cur_code_block)

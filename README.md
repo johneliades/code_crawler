@@ -41,7 +41,7 @@ python code_crawler.py any possible programming question
 
 ## How it works
 
-After google searching your question and taking the first 6(by default) sites 
+After google searching your question and taking the first 7(by default) sites 
 into account, the script visits the site if it belongs in the aforementioned 
 sites. It then takes the accepted answer's code block, and uses the specified 
 lexer provided in the search keywords. If not specified then it identifies the 
