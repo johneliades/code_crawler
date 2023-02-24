@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.metrics import f1_score,accuracy_score
+from sklearn.metrics import f1_score, accuracy_score
 from tqdm import tqdm, trange
 import logging
 import torch
@@ -9,19 +9,21 @@ from  transformers import RobertaForSequenceClassification
 from accelerate import Accelerator
 from dataset import train_test_tokenizer
 
-def evaluate(model,test_loader):
+def evaluate(model, test_loader):
     eval_loss = 0.0
     nb_eval_steps = 0
     preds = np.empty((0), dtype=np.int64)
     out_label_ids = np.empty((0), dtype=np.int64)
-    logging.basicConfig(filename = './test.log',level=logging.INFO)
+    logging.basicConfig(filename = './test.log', level=logging.INFO)
 
     model.eval()
 
     for step, (input_ids, attention_masks, labels) in enumerate(tqdm(test_loader, desc="Test")):
         input_ids = torch.squeeze(input_ids, 1)
         with torch.no_grad():
-            outputs = model(input_ids=input_ids.to(device), attention_mask=attention_masks.to(device), labels=labels.to(device))
+            outputs = model(input_ids=input_ids.to(device), 
+                attention_mask=attention_masks.to(device), labels=labels.to(device))
+            
             loss = outputs[0]
             logits = outputs[1]
             eval_loss += loss.mean().item()
@@ -36,10 +38,11 @@ def evaluate(model,test_loader):
     print("=== Eval: f1 ===", f1)
     logging.info(f'eval, loss: {eval_loss} acc: {acc} f1: {f1}')
 
-
-def train(labels,device,dataloader):
+def train(labels, device, dataloader):
     tb_writer = SummaryWriter()
-    model = RobertaForSequenceClassification.from_pretrained("huggingface/CodeBERTa-small-v1", num_labels=labels).to(device)
+    model = RobertaForSequenceClassification.from_pretrained("huggingface/CodeBERTa-small-v1",
+        num_labels=labels).to(device)
+    
     optimizer = torch.optim.AdamW(model.parameters())
     for param in model.roberta.parameters():
         param.requires_grad = False

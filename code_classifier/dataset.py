@@ -2,8 +2,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from transformers import AutoTokenizer
 from sklearn.model_selection import train_test_split
-from utils import load_pkl,sql_to_pkl
-
+from utils import load_pkl, sql_to_pkl
 
 class CodeClassificationDataset(Dataset):
     def __init__(self, df, text_col, label_col, tokenizer):
@@ -23,18 +22,17 @@ class CodeClassificationDataset(Dataset):
         # code = "".join(tokens)
 
         inputs = self.tokenizer.encode_plus(code,
-                                             add_special_tokens=True,
-                                             return_tensors='pt',
-                                             max_length=512,
-                                             padding='max_length',
-                                             truncation = True)
+                                            add_special_tokens=True,
+                                            return_tensors='pt',
+                                            max_length=512,
+                                            padding='max_length',
+                                            truncation = True)
         token_ids = inputs['input_ids']
         attention_mask = inputs['attention_mask']
 
         return token_ids, attention_mask, label
 
-
-def train_test_tokenizer(pkl_file,test_size):
+def train_test_tokenizer(pkl_file, test_size):
     #sql_to_pkl('./code_snippet/snippets-dev.db')
     df = load_pkl(pkl_file)
     df_train, df_test = train_test_split(df, test_size=test_size, random_state=42)

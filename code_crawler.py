@@ -10,20 +10,32 @@ import random
 import os
 import certifi
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+from transformers import TextClassificationPipeline,RobertaForSequenceClassification,RobertaTokenizer
+from time import time
+
+CODEBERTA_LANGUAGE_ID = "huggingface/CodeBERTa-language-id"
+
+code_tokenizer = RobertaTokenizer.from_pretrained(CODEBERTA_LANGUAGE_ID)
+code_classifier = RobertaForSequenceClassification.from_pretrained(
+	"./code_classifier/CodeBERT-github-code-snippet-tiny")
+
+pipeline = TextClassificationPipeline(
+    model= code_classifier,
+    tokenizer= code_tokenizer
+)
+
+start = time()
 
 class bcolors:
 	CYAN = '\033[96m'
 	RED = '\033[31m'
+	NEW = '\033[32m'
 	ENDC = '\033[0m'
 	BOLD = '\033[1m'
 
 available_sites = ["w3schools", "stackoverflow", "tutorialspoint", 
 				"geeksforgeeks", "pypi", "askubuntu", "mathworks",
 				"stackexchange", "unrealengine", "microsoft"]
-
-languages = ["c", "java", "python", "lua", "javascript", "js" ,"go", 
-			"golang", "cpp", "c++", "matlab", "ruby", "c#", "csharp",
-			"css", "html", "latex"]
 
 try:
 	query = sys.argv[1]
@@ -34,7 +46,7 @@ except:
 
 print()
 
-num_results = 7
+num_results = 6
 http = urllib3.PoolManager(ca_certs=certifi.where(), cert_reqs='REQUIRED')
 total_results = []
 
@@ -90,18 +102,29 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 		except:
 			continue
 
-		print(bcolors.CYAN + bcolors.BOLD + site + ": " + bcolors.RED + url + bcolors.ENDC) 
+		possible_lexer_names = [lexer[1][0] for lexer in lexers.get_all_lexers() if len(lexer[1]) > 0]
+		lexer = None
+		for cur_lexer in possible_lexer_names:
+			if(cur_lexer.lower() in query.lower().split(' ')):
+				lexer = lexers.get_lexer_by_name(cur_lexer)
+				break
+
+		print(bcolors.CYAN + bcolors.BOLD + site + ": " + bcolors.RED + url + bcolors.ENDC, end="")
+
+		if(lexer == None):
+			prediction = pipeline(result)
+			lexer = lexers.get_lexer_by_name(prediction[0]["label"])
+
+			print(bcolors.NEW + " (" + prediction[0]["label"] + " " + 
+				str(round(prediction[0]["score"]*100, 2)) + "%)" + bcolors.ENDC) 
+		else:
+			print(bcolors.ENDC)
+		
 		for i in range(min(80, len(site + ": " + url))):
 			print(u'\u2501', end="")
 		print()
 
-		lexer = None
-		for language in languages:
-			if(language.lower() in query.lower().split(' ')):
-				lexer = lexers.get_lexer_by_name(language)
-				break
-
 		if(lexer!=None):
-			print(highlight(result, lexer, TerminalFormatter()))
+			print(highlight(result,  lexers.get_lexer_by_name("TSV"), TerminalFormatter()))
 		else:
 			print(result)

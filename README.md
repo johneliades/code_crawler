@@ -37,14 +37,20 @@ python code_crawler.py any possible programming question
 
 ## How it works
 
-After google searching your question and taking the first 7(by default) sites 
+After google searching your question and taking the first 6(by default) sites 
 into account, the script visits the site if it belongs in the aforementioned 
-sites. It then takes the accepted answer's code block, and uses the appropriate 
-lexer according to your keywords for the syntax highlighting, giving you the 
-answer in an organised way.
+sites. It then takes the accepted answer's code block, and uses the specified 
+lexer provided in the search keywords. If not specified then it identifies the 
+appropriate lexer using the model's best prediction and then highlights the 
+code, giving you the answer in an organised way.
 
 ## Code Classifier
-Its is based on [CodeBERTA](https://huggingface.co/huggingface/CodeBERTa-language-id) it is finetuned using a small version of [Github-code-snippets](https://www.kaggle.com/datasets/simiotic/github-code-snippets-development-sample?datasetId=1198320) in order to be able to classify 20 popular programming and scripting languages. Although the predictions most of the time are correct , for some languages the confidence score is low.We think that problem might be resolved by using a bigger version of [Github-code-snippets](https://www.kaggle.com/datasets/simiotic/github-code-snippets). 
+
+It's based on ![CodeBERTA](https://huggingface.co/huggingface/CodeBERTa-language-id) 
+and finetuned using a small version of ![Github-code-snippets](https://www.kaggle.com/datasets/simiotic/github-code-snippets-development-sample?datasetId=1198320) in order to be able to classify 
+20 popular programming and scripting languages. Although the predictions most of the time 
+are correct, for some languages the confidence score is low. We think that problem might 
+be resolved by using a bigger version of ![Github-code-snippets](https://www.kaggle.com/datasets/simiotic/github-code-snippets). 
 
 inference dependencies : 
 ```
@@ -54,9 +60,10 @@ train dependencies :
 ```
 pip install -r code_classifier/requirements.txt
 ```
-To use the pretrained model download .bin file from this [google-drive-link](https://drive.google.com/file/d/1VxrJ8zUZuNA-ojTA-z1FQuvPseqYQOJE/view?usp=share_link) and paste it on 
+To use the pretrained model download .bin file from this ![google-drive-link](https://drive.google.com/file/d/1VxrJ8zUZuNA-ojTA-z1FQuvPseqYQOJE/view?usp=share_link) and paste it on 
 code_crawler/code_classifier/CodeBERT-github-code-snippet-tiny directory.
 
-## Author
+## Authors
 
 **Eliades John** - *Developer* - [Github](https://github.com/johneliades)
+**Milas Kostas** - *Developer* - [Github](https://github.com/kmilas)

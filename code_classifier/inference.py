@@ -1,18 +1,16 @@
 # pip install transformers
 
-from transformers import TextClassificationPipeline,RobertaForSequenceClassification,RobertaTokenizer
+from transformers import TextClassificationPipeline, RobertaForSequenceClassification, RobertaTokenizer
 from time import time
 
-
-def code_classifier(code_snippet,tokenizer,model):
+def code_classifier(code_snippet, tokenizer, model):
     start = time()
     pipeline = TextClassificationPipeline(
-        model= model,
-        tokenizer= tokenizer
+        model = model,
+        tokenizer = tokenizer
     )
     
-    print(pipeline(code_snippet), "exec_time: ",time()-start)
-
+    print(pipeline(code_snippet), "exec_time: ", time()-start)
 
 if __name__ == '__main__':
     code = ["""
@@ -56,22 +54,22 @@ char *fgetl(FILE *fp)
     def f(x):
         return x+2""","""package main
 import (
-	"fmt"
-	"os"
+    "fmt"
+    "os"
 )
 
 func main() {
-	fmt.Println("Hello World")
+    fmt.Println("Hello World")
 
-	// Exit successfully
-	os.Exit(0)
+    // Exit successfully
+    os.Exit(0)
 
-	// Never runs
-	fmt.Println("Something else...")
+    // Never runs
+    fmt.Println("Something else...")
 } 
         """
-        ]
+    ]
     code_tokenizer = RobertaTokenizer.from_pretrained("huggingface/CodeBERTa-language-id")
     model = RobertaForSequenceClassification.from_pretrained("./CodeBERT-github-code-snippet-tiny")
 
-    code_classifier(code,code_tokenizer,model)
+    code_classifier(code, code_tokenizer, model)
