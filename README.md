@@ -46,11 +46,11 @@ code, giving you the answer in an organised way.
 
 ## Code Classifier
 
-It's based on ![CodeBERTA](https://huggingface.co/huggingface/CodeBERTa-language-id) 
-and finetuned using a small version of ![Github-code-snippets](https://www.kaggle.com/datasets/simiotic/github-code-snippets-development-sample?datasetId=1198320) in order to be able to classify 
+It's based on [CodeBERTA](https://huggingface.co/huggingface/CodeBERTa-language-id) 
+and finetuned using a small version of [Github-code-snippets](https://www.kaggle.com/datasets/simiotic/github-code-snippets-development-sample?datasetId=1198320) in order to be able to classify 
 20 popular programming and scripting languages. Although the predictions most of the time 
 are correct, for some languages the confidence score is low. We think that problem might 
-be resolved by using a bigger version of ![Github-code-snippets](https://www.kaggle.com/datasets/simiotic/github-code-snippets). 
+be resolved by using a bigger version of [Github-code-snippets](https://www.kaggle.com/datasets/simiotic/github-code-snippets). 
 
 inference dependencies : 
 ```
@@ -60,7 +60,7 @@ train dependencies :
 ```
 pip install -r code_classifier/requirements.txt
 ```
-To use the pretrained model download .bin file from this ![google-drive-link](https://drive.google.com/file/d/1VxrJ8zUZuNA-ojTA-z1FQuvPseqYQOJE/view?usp=share_link) and paste it on 
+To use the pretrained model download .bin file from this [google-drive-link](https://drive.google.com/file/d/1VxrJ8zUZuNA-ojTA-z1FQuvPseqYQOJE/view?usp=share_link) and paste it on 
 code_crawler/code_classifier/CodeBERT-github-code-snippet-tiny directory.
 
 ## Authors
