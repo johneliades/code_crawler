@@ -125,6 +125,6 @@ for url in search(query, tld="com", lang='en', num=num_results, stop=num_results
 		print()
 
 		if(lexer!=None):
-			print(highlight(result,  lexers.get_lexer_by_name("TSV"), TerminalFormatter()))
+			print(highlight(result, lexer, TerminalFormatter()))
 		else:
 			print(result)

@@ -15,6 +15,10 @@ git clone https://github.com/johneliades/code_crawler.git
 Or by clicking on the green "Clone or download" button on top and then 
 decompressing the zip.
 
+Then download the pretrained model download .bin file from this 
+[google-drive-link](https://drive.google.com/file/d/1VxrJ8zUZuNA-ojTA-z1FQuvPseqYQOJE/view?usp=share_link) 
+and paste it in code_crawler/code_classifier/CodeBERT-github-code-snippet-tiny directory.
+
 ## Run
 
 Install the missing libraries:
@@ -61,10 +65,13 @@ train dependencies :
 ```
 pip install -r code_classifier/requirements.txt
 ```
-To use the pretrained model download .bin file from this [google-drive-link](https://drive.google.com/file/d/1VxrJ8zUZuNA-ojTA-z1FQuvPseqYQOJE/view?usp=share_link) and paste it on 
-code_crawler/code_classifier/CodeBERT-github-code-snippet-tiny directory.
+The code classifier can be also used independently by downloading the pretrained model 
+(pytorch_model.bin) file from this [google-drive-link](https://drive.google.com/file/d/1VxrJ8zUZuNA-ojTA-z1FQuvPseqYQOJE/view?usp=share_link) and pasting it in the same directory 
+as the "config.json" found in code_classifier/CodeBERT-github-code-snippet-tiny. Then using 
+the inference.py as a base example on how to run the model.
 
 ## Authors
 
 **Eliades John** - *Developer* - [Github](https://github.com/johneliades)
+
 **Milas Kostas** - *Developer* - [Github](https://github.com/kmilas)
