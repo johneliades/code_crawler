@@ -27,9 +27,18 @@ def import_transformers():
 		tokenizer= code_tokenizer
 	)
 
-# Create a new thread to import libraries
-import_thread = threading.Thread(target=import_transformers)
-import_thread.start()
+def choose_lexer(query):
+	possible_lexer_names = [lexer[1][0] for lexer in lexers.get_all_lexers() if len(lexer[1]) > 0]
+
+	predict = True
+	chosen_lexer = None
+	for cur_lexer in possible_lexer_names:
+		if(cur_lexer.lower() in query.lower().split(' ')):
+			chosen_lexer = lexers.get_lexer_by_name(cur_lexer)
+			predict = False
+			break
+
+	return chosen_lexer, predict
 
 class bcolors:
 	CYAN = '\033[96m'
@@ -42,12 +51,23 @@ available_sites = ["w3schools", "stackoverflow", "tutorialspoint",
 				"geeksforgeeks", "pypi", "askubuntu", "mathworks",
 				"stackexchange", "unrealengine", "microsoft"]
 
-try:
+if(len(sys.argv)==1):
+	# Create a new thread to import libraries
+	import_thread = threading.Thread(target=import_transformers)
+	import_thread.start()
+
+	query = input("Give search query: ")
+
+	chosen_lexer, predict = choose_lexer(query)
+else:
 	query = sys.argv[1]
 	if("\"" not in query and "'" not in query):
 		query = ' '.join(sys.argv[1:])
-except:
-	query = input("Give search query: ")
+
+	chosen_lexer, predict = choose_lexer(query)
+	if(predict):
+		import_thread = threading.Thread(target=import_transformers)
+		import_thread.start()
 
 print()
 
@@ -109,20 +129,13 @@ for url in search(query, tld="com", lang='en',
 		except:
 			continue
 
-		possible_lexer_names = [lexer[1][0] for lexer in lexers.get_all_lexers() if len(lexer[1]) > 0]
-		lexer = None
-		for cur_lexer in possible_lexer_names:
-			if(cur_lexer.lower() in query.lower().split(' ')):
-				lexer = lexers.get_lexer_by_name(cur_lexer)
-				break
-
 		print(bcolors.CYAN + bcolors.BOLD + site + ": " + bcolors.RED + url + bcolors.ENDC, end="")
 
-		if(lexer == None):
+		if(predict):
 			import_thread.join()
 
 			prediction = pipeline(cur_code_block)
-			lexer = lexers.get_lexer_by_name(prediction[0]["label"])
+			chosen_lexer = lexers.get_lexer_by_name(prediction[0]["label"])
 
 			print(bcolors.GREEN + " (" + prediction[0]["label"] + " " + 
 				str(round(prediction[0]["score"]*100, 2)) + "%)" + bcolors.ENDC) 
@@ -133,7 +146,7 @@ for url in search(query, tld="com", lang='en',
 			print(u'\u2501', end="")
 		print()
 
-		if(lexer!=None):
-			print(highlight(cur_code_block, lexer, TerminalFormatter()))
+		if(chosen_lexer!=None):
+			print(highlight(cur_code_block, chosen_lexer, TerminalFormatter()))
 		else:
 			print(cur_code_block)
