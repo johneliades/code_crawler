@@ -74,4 +74,4 @@ the inference.py as a base example on how to run the model.
 
 **Eliades John** - *Developer* - [Github](https://github.com/johneliades)
 
-**Milas Kostas** - *Developer* - [Github](https://github.com/kmilas)
+**Milas Konstantinos** - *Developer* - [Github](https://github.com/kmilas)
