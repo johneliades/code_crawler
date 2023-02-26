@@ -44,6 +44,7 @@ class bcolors:
 	CYAN = '\033[96m'
 	RED = '\033[31m'
 	GREEN = '\033[32m'
+	YELLOW = '\033[33m'
 	ENDC = '\033[0m'
 	BOLD = '\033[1m'
 
@@ -69,7 +70,17 @@ else:
 		import_thread = threading.Thread(target=import_transformers)
 		import_thread.start()
 
-print()
+columns, _ = os.get_terminal_size()
+
+half_width = columns - len(" Crawling started ")
+
+print(bcolors.CYAN, end="")
+for i in range(half_width//2):
+	print(u'\u2501', end="")
+print(" Crawling started ", end="")
+for i in range(half_width//2):
+	print(u'\u2501', end="")
+print("\n")
 
 num_search_results = 7
 http = urllib3.PoolManager(ca_certs=certifi.where(), cert_reqs='REQUIRED')
@@ -125,11 +136,14 @@ for url in search(query, tld="com", lang='en',
 			if cur_code_block not in code_blocks:
 				code_blocks.append(cur_code_block)
 			else:
+				print(bcolors.RED + "Duplicate codeblock ignored" + bcolors.ENDC)
 				continue
 		except:
 			continue
 
-		print(bcolors.CYAN + bcolors.BOLD + site + ": " + bcolors.RED + url + bcolors.ENDC, end="")
+		url_parts = url.split(site)
+		print(bcolors.RED + bcolors.BOLD + url_parts[0] + bcolors.CYAN + site + 
+			bcolors.RED + url_parts[1] + bcolors.ENDC, end="")
 
 		if(predict):
 			import_thread.join()
@@ -137,12 +151,16 @@ for url in search(query, tld="com", lang='en',
 			prediction = pipeline(cur_code_block)
 			chosen_lexer = lexers.get_lexer_by_name(prediction[0]["label"])
 
-			print(bcolors.GREEN + " (" + prediction[0]["label"] + " " + 
-				str(round(prediction[0]["score"]*100, 2)) + "%)" + bcolors.ENDC) 
+			if(prediction[0]["score"]*100>50):
+				print(bcolors.GREEN + " (" + prediction[0]["label"] + " " + 
+					str(round(prediction[0]["score"]*100, 2)) + "%)" + bcolors.ENDC) 
+			else:
+				print(bcolors.YELLOW + " (" + prediction[0]["label"] + " " + 
+					str(round(prediction[0]["score"]*100, 2)) + "%)" + bcolors.ENDC) 
 		else:
 			print(bcolors.ENDC)
-		
-		for i in range(min(80, len(site + ": " + url))):
+
+		for i in range(min(len(url_parts[0] + site + url_parts[1]), columns)):
 			print(u'\u2501', end="")
 		print()
 
