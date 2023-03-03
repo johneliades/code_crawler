@@ -49,7 +49,8 @@ class bcolors:
 
 available_sites = ["w3schools", "stackoverflow", "tutorialspoint", 
 				"geeksforgeeks", "pypi", "askubuntu", "mathworks",
-				"stackexchange", "unrealengine", "microsoft"]
+				"stackexchange", "unrealengine", "microsoft", 
+				"futurestud", "unity"]
 
 if(len(sys.argv)==1):
 	# Create a new thread to import libraries
@@ -95,47 +96,52 @@ for url in search(query, tld="com", lang='en',
 		print(bcolors.RED + "Site not crawled: " + bcolors.CYAN + url + bcolors.ENDC + "\n")
 		continue
 
-	response = http.request('GET', url)
-	soup = BeautifulSoup(response.data, features="html.parser")
 	try:
+		response = http.request('GET', url)
+		soup = BeautifulSoup(response.data, features="html.parser")
+		
 		if site == "w3schools":
-			result = soup.find("div", {"class": "w3-code"})
-			cur_code_block = result.get_text(separator="\n").strip()
+			w3_code = soup.find("div", {"class": "w3-code"})
+			cur_code_block = w3_code.get_text(separator="\n").strip()
 		elif site == "stackoverflow" or site == "askubuntu" or site == "stackexchange":
-			result = soup.find("div", {'class': ['answer', 'accepted-answer']})
-			result = result.find("div", {"class": "answercell"})
-			result = result.find("div", {"class": "s-prose"})
-			cur_code_block = result.find("pre").text
+			accepted_answer = soup.find("div", {'class': ['answer', 'accepted-answer']})
+			answercell = accepted_answer.find("div", {"class": "answercell"})
+			s_prose = answercell.find("div", {"class": "s-prose"})
+			cur_code_block = s_prose.find("pre").get_text()
 		elif site == "tutorialspoint":
-			result = soup.find("div", {"class": "tutorial-content"})
-			cur_code_block = result.find("pre").text	
+			tutorial_content = soup.find("div", {"class": "tutorial-content"})
+			cur_code_block = tutorial_content.find("pre").get_text()	
 		elif site == "geeksforgeeks":
-			result = soup.find("td", {"class": "code"})
-			results = result.find_all(class_="line")
+			code = soup.find("td", {"class": "code"})
+			lines = code.find_all(class_="line")
 
 			cur_code_block = ""
-			for line in results:
-				cur_code_block += line.getText() + "\n"
+			for line in lines:
+				cur_code_block += line.get_text() + "\n"
 
 		elif site == "pypi":
-			result = soup.find("span", id="pip-command")
-			cur_code_block = result.get_text().strip()
+			pip_command = soup.find("span", id="pip-command")
+			cur_code_block = pip_command.get_text().strip()
 		elif site == "mathworks":
-			result = soup.find("div", {"class": "codeinput"})
-			cur_code_block = result.find("pre").text	
+			codeinput = soup.find("div", {"class": "codeinput"})
+			cur_code_block = codeinput.find("pre").get_text()	
 		elif site == "unrealengine":
-			result = soup.find("div", {'class': ['answer', 'accepted-answer']})
-			result = result.find("div", {"class": "answer-body"})
-			cur_code_block = result.find("pre").text	
+			accepted_answer = soup.find("div", {'class': ['answer', 'accepted-answer']})
+			answer_body = accepted_answer.find("div", {"class": "answer-body"})
+			cur_code_block = answer_body.find("pre").get_text()	
 		elif site == "microsoft":
-			result = soup.find("code")
-			result = result.get_text().strip()
+			code = soup.find("code")
+			cur_code_block = code.get_text().strip()
+		elif site == "futurestud":
+			cur_code_block = soup.find("pre").get_text()
+		elif site == "unity":
+			answer_body = soup.find('div', {'class': 'answer-body'})
+			cur_code_block = answer_body.find('pre').get_text()
 
 		cur_code_block = cur_code_block.strip() + "\n"
 		if cur_code_block not in code_blocks:
 			code_blocks.append(cur_code_block)
 		else:
-			print(bcolors.RED + "Duplicate codeblock ignored" + bcolors.ENDC)
 			continue
 	except:
 		print(bcolors.RED + "Code not found: " + bcolors.CYAN + url + bcolors.ENDC + "\n")
@@ -158,12 +164,14 @@ for url in search(query, tld="com", lang='en',
 		print(u'\u2501', end="")
 	print()
 
-	if(prediction[0]["score"]*100>50):
-		print(bcolors.GREEN_UNDERLINED + prediction[0]["label"] + " " + 
-			str(round(prediction[0]["score"]*100, 1)) + "%" + bcolors.ENDC) 
-	else:
-		print(bcolors.YELLOW_UNDERLINED + prediction[0]["label"] + " " + 
-			str(round(prediction[0]["score"]*100, 1)) + "%" + bcolors.ENDC) 
+	print(bcolors.CYAN + "Prediction: " + bcolors.ENDC, end="")
+	if(predict):
+		if(prediction[0]["score"]*100>50):
+			print(bcolors.GREEN_UNDERLINED + prediction[0]["label"] + " " + 
+				str(round(prediction[0]["score"]*100, 1)) + "%" + bcolors.ENDC) 
+		else:
+			print(bcolors.YELLOW_UNDERLINED + prediction[0]["label"] + " " + 
+				str(round(prediction[0]["score"]*100, 1)) + "%" + bcolors.ENDC) 
 
 	print()
 
