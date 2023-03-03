@@ -9,7 +9,6 @@ import sys
 import random
 import os
 import certifi
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 import threading
 
 def import_transformers():
@@ -43,8 +42,8 @@ def choose_lexer(query):
 class bcolors:
 	CYAN = '\033[96m'
 	RED = '\033[31m'
-	GREEN = '\033[32m'
-	YELLOW = '\033[33m'
+	GREEN_UNDERLINED = "\033[32;4m"
+	YELLOW_UNDERLINED = '\033[33;4m'
 	ENDC = '\033[0m'
 	BOLD = '\033[1m'
 
@@ -80,7 +79,7 @@ for i in range(half_width//2):
 print(" Crawling started ", end="")
 for i in range(half_width//2):
 	print(u'\u2501', end="")
-print("\n")
+print(bcolors.ENDC + "\n")
 
 num_search_results = 7
 http = urllib3.PoolManager(ca_certs=certifi.where(), cert_reqs='REQUIRED')
@@ -93,78 +92,82 @@ for url in search(query, tld="com", lang='en',
 	if(len(site)!=0):
 		site = site[0]
 	else:
+		print(bcolors.RED + "Site not crawled: " + bcolors.CYAN + url + bcolors.ENDC + "\n")
 		continue
 
-	if(site in available_sites):
-		response = http.request('GET', url)
-		soup = BeautifulSoup(response.data, features="html.parser")
-		try:
-			if site == "w3schools":
-				result = soup.find("div", {"class": "w3-code"})
-				cur_code_block = result.get_text(separator="\n").strip()
-			elif site == "stackoverflow" or site == "askubuntu" or site == "stackexchange":
-				result = soup.find("div", {'class': ['answer', 'accepted-answer']})
-				result = result.find("div", {"class": "answercell"})
-				result = result.find("div", {"class": "s-prose"})
-				cur_code_block = result.find("pre").text
-			elif site == "tutorialspoint":
-				result = soup.find("div", {"class": "tutorial-content"})
-				cur_code_block = result.find("pre").text	
-			elif site == "geeksforgeeks":
-				result = soup.find("td", {"class": "code"})
-				results = result.find_all(class_="line")
+	response = http.request('GET', url)
+	soup = BeautifulSoup(response.data, features="html.parser")
+	try:
+		if site == "w3schools":
+			result = soup.find("div", {"class": "w3-code"})
+			cur_code_block = result.get_text(separator="\n").strip()
+		elif site == "stackoverflow" or site == "askubuntu" or site == "stackexchange":
+			result = soup.find("div", {'class': ['answer', 'accepted-answer']})
+			result = result.find("div", {"class": "answercell"})
+			result = result.find("div", {"class": "s-prose"})
+			cur_code_block = result.find("pre").text
+		elif site == "tutorialspoint":
+			result = soup.find("div", {"class": "tutorial-content"})
+			cur_code_block = result.find("pre").text	
+		elif site == "geeksforgeeks":
+			result = soup.find("td", {"class": "code"})
+			results = result.find_all(class_="line")
 
-				cur_code_block = ""
-				for line in results:
-					cur_code_block += line.getText() + "\n"
+			cur_code_block = ""
+			for line in results:
+				cur_code_block += line.getText() + "\n"
 
-			elif site == "pypi":
-				result = soup.find("span", id="pip-command")
-				cur_code_block = result.get_text().strip()
-			elif site == "mathworks":
-				result = soup.find("div", {"class": "codeinput"})
-				cur_code_block = result.find("pre").text	
-			elif site == "unrealengine":
-				result = soup.find("div", {'class': ['answer', 'accepted-answer']})
-				result = result.find("div", {"class": "answer-body"})
-				cur_code_block = result.find("pre").text	
-			elif site == "microsoft":
-				result = soup.find("code")
-				result = result.get_text().strip()
+		elif site == "pypi":
+			result = soup.find("span", id="pip-command")
+			cur_code_block = result.get_text().strip()
+		elif site == "mathworks":
+			result = soup.find("div", {"class": "codeinput"})
+			cur_code_block = result.find("pre").text	
+		elif site == "unrealengine":
+			result = soup.find("div", {'class': ['answer', 'accepted-answer']})
+			result = result.find("div", {"class": "answer-body"})
+			cur_code_block = result.find("pre").text	
+		elif site == "microsoft":
+			result = soup.find("code")
+			result = result.get_text().strip()
 
-			cur_code_block = cur_code_block.strip() + "\n"
-			if cur_code_block not in code_blocks:
-				code_blocks.append(cur_code_block)
-			else:
-				print(bcolors.RED + "Duplicate codeblock ignored" + bcolors.ENDC)
-				continue
-		except:
+		cur_code_block = cur_code_block.strip() + "\n"
+		if cur_code_block not in code_blocks:
+			code_blocks.append(cur_code_block)
+		else:
+			print(bcolors.RED + "Duplicate codeblock ignored" + bcolors.ENDC)
 			continue
+	except:
+		print(bcolors.RED + "Code not found: " + bcolors.CYAN + url + bcolors.ENDC + "\n")
+		continue
 
-		url_parts = url.split(site)
-		print(bcolors.RED + bcolors.BOLD + url_parts[0] + bcolors.CYAN + site + 
-			bcolors.RED + url_parts[1] + bcolors.ENDC, end="")
+	url_parts = url.split(site)
+	print(bcolors.RED + bcolors.BOLD + url_parts[0] + bcolors.CYAN + site + 
+		bcolors.RED + url_parts[1] + bcolors.ENDC, end="")
 
-		if(predict):
-			import_thread.join()
+	if(predict):
+		import_thread.join()
 
-			prediction = pipeline(cur_code_block)
-			chosen_lexer = lexers.get_lexer_by_name(prediction[0]["label"])
-
-			if(prediction[0]["score"]*100>50):
-				print(bcolors.GREEN + " (" + prediction[0]["label"] + " " + 
-					str(round(prediction[0]["score"]*100, 2)) + "%)" + bcolors.ENDC) 
-			else:
-				print(bcolors.YELLOW + " (" + prediction[0]["label"] + " " + 
-					str(round(prediction[0]["score"]*100, 2)) + "%)" + bcolors.ENDC) 
-		else:
-			print(bcolors.ENDC)
-
-		for i in range(min(len(url_parts[0] + site + url_parts[1]), columns)):
-			print(u'\u2501', end="")
+		prediction = pipeline(cur_code_block)
+		chosen_lexer = lexers.get_lexer_by_name(prediction[0]["label"])
 		print()
+	else:
+		print(bcolors.ENDC)
 
-		if(chosen_lexer!=None):
-			print(highlight(cur_code_block, chosen_lexer, TerminalFormatter()))
-		else:
-			print(cur_code_block)
+	for i in range(min(len(url_parts[0] + site + url_parts[1]), columns)):
+		print(u'\u2501', end="")
+	print()
+
+	if(prediction[0]["score"]*100>50):
+		print(bcolors.GREEN_UNDERLINED + prediction[0]["label"] + " " + 
+			str(round(prediction[0]["score"]*100, 1)) + "%" + bcolors.ENDC) 
+	else:
+		print(bcolors.YELLOW_UNDERLINED + prediction[0]["label"] + " " + 
+			str(round(prediction[0]["score"]*100, 1)) + "%" + bcolors.ENDC) 
+
+	print()
+
+	if(chosen_lexer!=None):
+		print(highlight(cur_code_block, chosen_lexer, TerminalFormatter()))
+	else:
+		print(cur_code_block)
