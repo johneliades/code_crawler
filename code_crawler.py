@@ -18,8 +18,14 @@ def import_transformers():
 
 	code_tokenizer = RobertaTokenizer.from_pretrained("huggingface/CodeBERTa-language-id")
 
-	code_classifier = RobertaForSequenceClassification.from_pretrained(
-		"./code_classifier/CodeBERT-github-code-snippet-tiny")
+	try:
+		code_classifier = RobertaForSequenceClassification.from_pretrained(
+			"./code_classifier/CodeBERT-github-code-snippet-tiny")
+	except:
+		print("Download pytorch_model.bin from "
+			"https://drive.google.com/file/d/1VxrJ8zUZuNA-ojTA-z1FQuvPseqYQOJE/view "
+			"and put it in code_classifier\CodeBERT-github-code-snippet-tiny")
+		os._exit(1)
 
 	pipeline = TextClassificationPipeline(
 		model= code_classifier,

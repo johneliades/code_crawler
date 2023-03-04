@@ -21,16 +21,16 @@ and paste it in code_crawler/code_classifier/CodeBERT-github-code-snippet-tiny d
 
 ## Run
 
-Install the missing libraries:
+Install conda and then install the missing libraries:
 
 ```
-pip install -r requirements.txt
+conda env create -f environment.yml
 ```
 
-and then you can run:
+then you can run:
 
 ```
-python code_crawler.py "any possible programming question"
+python code_crawler.py
 ```
 
 or:
