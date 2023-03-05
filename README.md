@@ -25,6 +25,7 @@ Install conda and then install the missing libraries:
 
 ```
 conda env create -f environment.yml
+conda activate code_crawler
 ```
 
 then you can run:
