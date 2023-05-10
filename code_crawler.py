@@ -165,13 +165,13 @@ for url in search(query, tld="com", lang='en',
 		print()
 	else:
 		print(bcolors.ENDC)
+		import_thread.join()
 
 	for i in range(min(len(url_parts[0] + site + url_parts[1]), columns)):
 		print(u'\u2501', end="")
-	print()
 
-	print(bcolors.CYAN + "Prediction: " + bcolors.ENDC, end="")
 	if(predict):
+		print("\n" + bcolors.CYAN + "Prediction: " + bcolors.ENDC, end="")
 		if(prediction[0]["score"]*100>50):
 			print(bcolors.GREEN_UNDERLINED + prediction[0]["label"] + " " + 
 				str(round(prediction[0]["score"]*100, 1)) + "%" + bcolors.ENDC) 
