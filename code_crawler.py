@@ -59,13 +59,8 @@ available_sites = ["w3schools", "stackoverflow", "tutorialspoint",
 				"futurestud", "unity"]
 
 if(len(sys.argv)==1):
-	# Create a new thread to import libraries
-	import_thread = threading.Thread(target=import_transformers)
-	import_thread.start()
-
-	query = input("Give search query: ")
-
-	chosen_lexer, predict = choose_lexer(query)
+	print(f"\ne.g: python {os.path.basename(__file__)} append lists in python")
+	sys.exit()
 else:
 	query = sys.argv[1]
 	if("\"" not in query and "'" not in query):
@@ -73,7 +68,7 @@ else:
 
 	chosen_lexer, predict = choose_lexer(query)
 	if(predict):
-		import_thread = threading.Thread(target=import_transformers)
+		import_thread = threading.Thread(target=import_transformers, daemon=True)
 		import_thread.start()
 
 columns, _ = os.get_terminal_size()
@@ -165,7 +160,6 @@ for url in search(query, tld="com", lang='en',
 		print()
 	else:
 		print(bcolors.ENDC)
-		import_thread.join()
 
 	for i in range(min(len(url_parts[0] + site + url_parts[1]), columns)):
 		print(u'\u2501', end="")
