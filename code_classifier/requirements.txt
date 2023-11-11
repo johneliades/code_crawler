@@ -46,7 +46,7 @@ packaging @ file:///croot/packaging_1671697413597/work
 pandas==1.5.2
 protobuf==3.20.2
 psutil==5.9.4
-pyarrow==8.0.0
+pyarrow==14.0.1
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser @ file:///home/conda/feedstock_root/build_artifacts/pycparser_1636257122734/work
