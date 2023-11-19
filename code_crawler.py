@@ -56,7 +56,7 @@ class bcolors:
 available_sites = ["w3schools", "stackoverflow", "tutorialspoint", 
 				"geeksforgeeks", "pypi", "askubuntu", "mathworks",
 				"stackexchange", "unrealengine", "microsoft", 
-				"futurestud", "unity"]
+				"futurestud", "unity", "realpython"]
 
 if(len(sys.argv)==1):
 	print(f"\ne.g: python {os.path.basename(__file__)} append lists in python")
@@ -137,6 +137,9 @@ for url in search(query, tld="com", lang='en',
 			cur_code_block = soup.find("pre").get_text()
 		elif site == "unity":
 			answer_body = soup.find('div', {'class': 'answer-body'})
+			cur_code_block = answer_body.find('pre').get_text()
+		elif site == "realpython":
+			answer_body = soup.find('div', {'class': 'codeblock'})
 			cur_code_block = answer_body.find('pre').get_text()
 
 		cur_code_block = cur_code_block.strip() + "\n"
