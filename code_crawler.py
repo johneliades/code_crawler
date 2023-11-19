@@ -24,7 +24,7 @@ def import_transformers():
 	except:
 		print("Download pytorch_model.bin from "
 			"https://drive.google.com/file/d/1VxrJ8zUZuNA-ojTA-z1FQuvPseqYQOJE/view "
-			"and put it in code_classifier\CodeBERT-github-code-snippet-tiny")
+			"and put it in code_classifier\\CodeBERT-github-code-snippet-tiny")
 		os._exit(1)
 
 	pipeline = TextClassificationPipeline(
