@@ -1,13 +1,16 @@
 #!/usr/bin/python3
 
 from bs4 import BeautifulSoup
-from googlesearch import search 
+from ddgs import DDGS
 from pygments import lexers, highlight
 from pygments.formatters import TerminalFormatter
 import urllib3
+import urllib.parse
+import json
+import re
 import sys
-import random
 import os
+import shutil
 import certifi
 import threading
 
@@ -58,6 +61,29 @@ available_sites = ["w3schools", "stackoverflow", "tutorialspoint",
 				"stackexchange", "unrealengine", "microsoft", 
 				"futurestud", "unity", "realpython"]
 
+stackexchange_sites = ["stackoverflow", "askubuntu", "stackexchange"]
+
+def stackexchange_code(url):
+	# Stack Exchange pages now sit behind a Cloudflare bot check, so read the
+	# answers through the official API instead (no key needed, ~300 req/day/IP).
+	parsed = urllib.parse.urlparse(url)
+	question_id = re.search(r"/(?:questions|q)/(\d+)", parsed.path).group(1)
+	response = http.request("GET",
+		f"https://api.stackexchange.com/2.3/questions/{question_id}/answers",
+		fields={"site": parsed.hostname.removeprefix("www."), "filter": "withbody",
+			"sort": "votes", "order": "desc", "pagesize": "30"})
+	data = json.loads(response.data)
+	if "error_message" in data:
+		raise RuntimeError(data["error_message"])
+
+	# Accepted answer first, then the rest by votes; take the first with code.
+	answers = sorted(data["items"], key=lambda a: not a["is_accepted"])
+	for answer in answers:
+		pre = BeautifulSoup(answer["body"], features="html.parser").find("pre")
+		if pre is not None:
+			return pre.get_text()
+	raise LookupError("no code block in any answer")
+
 if(len(sys.argv)==1):
 	print(f"\ne.g: python {os.path.basename(__file__)} append lists in python")
 	sys.exit()
@@ -71,7 +97,7 @@ else:
 		import_thread = threading.Thread(target=import_transformers, daemon=True)
 		import_thread.start()
 
-columns, _ = os.get_terminal_size()
+columns, _ = shutil.get_terminal_size()
 
 half_width = columns - len(" Crawling started ")
 
@@ -87,8 +113,22 @@ num_search_results = 7
 http = urllib3.PoolManager(ca_certs=certifi.where(), cert_reqs='REQUIRED')
 code_blocks = []
 
-for url in search(query, tld="com", lang='en', 
-	num=num_search_results, stop=num_search_results, pause=random.uniform(0, 0.5)): 
+# Google now requires JavaScript for search, so the old `googlesearch`
+# scraper gets no results. ddgs can still query several engines; any single
+# one fails now and then, so try them in order until one answers.
+results = []
+for backend in ["google", "bing", "yahoo", "mullvad_google", "auto"]:
+	try:
+		results = DDGS(timeout=10).text(query, max_results=num_search_results, backend=backend)
+	except Exception:
+		continue
+	if results:
+		break
+else:
+	print(bcolors.RED + "Search failed: no search engine returned results" + bcolors.ENDC)
+	sys.exit(1)
+
+for url in (r["href"] for r in results):
 	
 	site = [x for x in available_sites if url.find(x)!=-1]
 	if(len(site)!=0):
@@ -98,27 +138,30 @@ for url in search(query, tld="com", lang='en',
 		continue
 
 	try:
-		response = http.request('GET', url)
-		soup = BeautifulSoup(response.data, features="html.parser")
-		
+		if site in stackexchange_sites:
+			cur_code_block = stackexchange_code(url)
+		else:
+			response = http.request('GET', url)
+			soup = BeautifulSoup(response.data, features="html.parser")
+
 		if site == "w3schools":
 			w3_code = soup.find("div", {"class": "w3-code"})
 			cur_code_block = w3_code.get_text(separator="\n").strip()
-		elif site == "stackoverflow" or site == "askubuntu" or site == "stackexchange":
-			accepted_answer = soup.find("div", {'class': ['answer', 'accepted-answer']})
-			answercell = accepted_answer.find("div", {"class": "answercell"})
-			s_prose = answercell.find("div", {"class": "s-prose"})
-			cur_code_block = s_prose.find("pre").get_text()
 		elif site == "tutorialspoint":
 			tutorial_content = soup.find("div", {"class": "tutorial-content"})
 			cur_code_block = tutorial_content.find("pre").get_text()	
 		elif site == "geeksforgeeks":
-			code = soup.find("td", {"class": "code"})
-			lines = code.find_all(class_="line")
+			# highlighted code blocks first, then plain snippets (e.g. shell commands)
+			pre = soup.select_one("div.highlight > pre") or soup.select_one("div.html-chunk > pre")
+			if pre is not None:
+				cur_code_block = pre.get_text()
+			else:  # older GFG layout
+				code = soup.find("td", {"class": "code"})
+				lines = code.find_all(class_="line")
 
-			cur_code_block = ""
-			for line in lines:
-				cur_code_block += line.get_text() + "\n"
+				cur_code_block = ""
+				for line in lines:
+					cur_code_block += line.get_text() + "\n"
 
 		elif site == "pypi":
 			pip_command = soup.find("span", id="pip-command")
@@ -139,8 +182,8 @@ for url in search(query, tld="com", lang='en',
 			answer_body = soup.find('div', {'class': 'answer-body'})
 			cur_code_block = answer_body.find('pre').get_text()
 		elif site == "realpython":
-			answer_body = soup.find('div', {'class': 'codeblock'})
-			cur_code_block = answer_body.find('pre').get_text()
+			pre = soup.select_one("div.codeblock__contents pre, div.codeblock pre")
+			cur_code_block = pre.get_text()
 
 		cur_code_block = cur_code_block.strip() + "\n"
 		if cur_code_block not in code_blocks:

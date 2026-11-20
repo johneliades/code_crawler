@@ -18,7 +18,6 @@ dependencies:
   - filelock=3.9.0=py310haa95532_0
   - flit-core=3.6.0=pyhd3eb1b0_0
   - future=0.18.3=py310haa95532_0
-  - googlesearch=3.0.0=pyh9f0ad1d_0
   - huggingface_hub=0.10.1=py310haa95532_0
   - idna=3.4=py310haa95532_0
   - intel-openmp=2021.4.0=haa95532_3556
@@ -65,4 +64,6 @@ dependencies:
   - xz=5.2.10=h8cc25b3_1
   - yaml=0.2.5=he774522_0
   - zlib=1.2.13=h8cc25b3_0
+  - pip:
+    - ddgs
 prefix: C:\Users\John\miniconda3\envs\code_crawler
